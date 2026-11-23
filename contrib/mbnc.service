@@ -1,0 +1,23 @@
+# systemd user unit. Install:
+#   mkdir -p ~/.config/systemd/user && cp contrib/mbnc.service ~/.config/systemd/user/
+#   systemctl --user daemon-reload && systemctl --user enable --now mbnc
+#   sudo loginctl enable-linger $USER      # keep running when logged out / start at boot
+#
+# If `listen` is a Tailscale IP, binding fails until tailscaled has brought the
+# interface up; Restart= below retries until it succeeds. (A user unit can't
+# order itself After=tailscaled.service, which is a system unit. As a system
+# unit you could add: After=tailscaled.service network-online.target
+# and Wants=network-online.target.)
+
+[Unit]
+Description=mbnc M* bouncer
+
+[Service]
+WorkingDirectory=%h/bnc
+ExecStart=%h/bnc/target/release/mbnc -c %h/bnc/mbnc.toml
+Restart=on-failure
+RestartSec=5
+Environment=RUST_LOG=info
+
+[Install]
+WantedBy=default.target

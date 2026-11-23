@@ -1,0 +1,16 @@
+[package]
+name = "mbnc-proto"
+description = "Wire protocol for the mbnc M* bouncer (frames + control messages)"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[features]
+default = ["tokio"]
+# async read_frame / write_frame helpers
+tokio = ["dep:tokio"]
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["io-util"], optional = true }

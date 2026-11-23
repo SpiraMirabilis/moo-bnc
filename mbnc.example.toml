@@ -1,0 +1,37 @@
+# mbnc configuration. Relative paths are resolved against this file's directory.
+
+# Address to accept client connections on. For a tailnet-only bouncer, use the
+# machine's Tailscale IP (e.g. "100.101.102.103:7777"). See README for boot ordering.
+listen = "0.0.0.0:7777"
+
+# Session definitions (incl. login scripts with passwords) and spilled backlog.
+data_dir = "data"
+
+# Generate with:  ./mbnc hash-password
+password_hash = "$argon2id$v=19$m=19456,t=2,p=1$REPLACE_ME$REPLACE_ME"
+
+# TLS for client connections. Either configure this, or set allow_plaintext.
+# On a tailnet, `tailscale cert <machine>.<tailnet>.ts.net` gives you a real
+# certificate that clients can verify normally.
+[tls]
+cert = "cert.pem"
+key = "key.pem"
+
+# Without a [tls] section mbnc refuses to start unless this is true. Reasonable
+# when the listener is only reachable over WireGuard/Tailscale or an SSH tunnel.
+# allow_plaintext = true
+
+[backlog]
+# Per session: buffered output kept in RAM before spilling to disk.
+memory_bytes = 1048576        # 1 MiB
+# Per session: on-disk backlog file is rotated past this size; at most two
+# files are kept (so up to ~2x this), older output is dropped.
+disk_bytes = 33554432         # 32 MiB
+
+[reconnect]
+# Reconnect + re-login automatically when the M* drops us while nobody is attached.
+enabled = true
+initial_delay_secs = 10
+max_delay_secs = 300
+login_timeout_secs = 60
+connect_timeout_secs = 30
